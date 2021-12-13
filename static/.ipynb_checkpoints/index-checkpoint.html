@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Emotion Recognition</title>
+    <style>
+        h1{text-align:center;}
+    </style>
+</head>
+
+<body bgcolor='black' text='white'>
+    <h1> 
+        <b> <font size=15 class="text-center"> Emotion Prediction Model using CNN </font> </b>
+    </h1>
+    
+    <div style="background-color:white">
+        <hr>
+        <hr>
+    </div>
+    
+    <h2> Upload the image to predict!</h2>
+    
+    <input id = "image-selector", type = "file">
+    <button id = "predict-button"> Make Prediction </button>
+    
+    <p style = "font-weight:bold"> Predictions: </p>
+    <p> Happy: <span id = "happy"> </span> </p>
+    <p> Sad: <span id = "sad"> </span> </p>
+    <p> Fear: <span id = "fear"> </span> </p>
+    <p> Surprise: <span id = "surprise"> </span> </p>
+    <p> Neutral: <span id = "neutral"> </span> </p>
+    <p> Angry: <span id = "angry"> </span> </p>
+    <p> Disgust: <span id = "disgust"> </span> </p>
+    <img id = "selected-image" src = ""/>
+    
+    <script src= "https://code.jquery.com/jquery-3.3.1.min.js"> </script>
+    <script>
+        let base64Image;
+        $("#image-selector").change(function() {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let dataURL = reader.result;
+                $("#selected-image").attr("src", dataURL);
+                base64Image = dataURL.replace("data:image/png;base64,","");
+                console.log(base64Image);
+            }
+            reader.readAsDataURL($("#image-selector")[0].files[0]);
+            $("#happy").text("");
+            $("#sad").text("");
+            $("#fear").text("");
+            $("#surprise").text("");
+            $("#neutral").text("");
+            $("#angry").text("");
+            $("#disgust").text("");
+        });
+        
+        $("#predict-button").click(function(event) {
+            let msg = {
+                image: base64Image
+            }
+            console.log(msg);
+            $.post("http://192.168.86.158:5000/predict", JSON.stringify(msg), function(response){
+                $("#happy").text(response.prediction.happy.toFixed(6));
+                $("#sad").text(response.prediction.sad.toFixed(6));
+                $("#fear").text(response.prediction.fear.toFixed(6));
+                $("#surprise").text(response.prediction.surprise.toFixed(6));
+                $("#neutral").text(response.prediction.neutral.toFixed(6));
+                $("#angry").text(response.prediction.angry.toFixed(6));
+                $("#disgust").text(response.prediction.disgust.toFixed(6));
+                console.log(response);
+            });
+        });
+    </script>
+    </body>
+</html>
+                
+    
+<!--<form action="/", method="post", enctype="multipart/form-data">
+  Upload the image :<input type="file" name="imagefile">
+  <p><input type="submit" value="Predict image"></p>
+</form>
+<img src="{{ user_image }}" height="280px" width="400px">
+<p>
+<h2>
+<b> {{ prediction_text }}</b>
+</h2></p>
+</body>
+</html>"""-->
